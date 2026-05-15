@@ -1,0 +1,21 @@
+# ETAPA 1: Construcción (Node)
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# ETAPA 2: Servidor Web (Nginx)
+FROM nginx:stable-alpine
+# Copiar los archivos construidos a la carpeta de Nginx
+# NOTA: Verifica si tu build genera la carpeta 'dist' o 'build'
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Configuración de permisos para usuario no-root (Opcional pero recomendado)
+RUN touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /var/log/nginx /usr/share/nginx/html
+
+USER nginx
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

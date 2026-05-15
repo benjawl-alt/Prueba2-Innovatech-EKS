@@ -1,0 +1,30 @@
+name: Deploy Innovatech AWS
+
+on:
+  push:
+    branches: [ "deploy" ] # Se activa solo al subir cambios a esta rama
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # AQUÍ PASAMOS EL SECRET DESDE GITHUB AL SCRIPT DE SSH
+          envs: VITE_API_URL
+          script: |
+            mkdir -p /home/ec2-user/app
+            cd /home/ec2-user/app
+            
+            # Exportamos la variable para que Docker la vea
+            export VITE_API_URL=${{ secrets.VITE_API_URL }}
+            
+            # El comando sudo -E es la clave: el "-E" mantiene las variables de entorno
+            sudo -E docker-compose up -d --build
