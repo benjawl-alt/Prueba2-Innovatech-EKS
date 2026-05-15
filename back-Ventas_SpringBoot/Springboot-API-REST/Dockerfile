@@ -1,24 +1,16 @@
-# ETAPA 1: Construcción (Build)
+# Etapa 1: Construcción
 FROM maven:3.8.5-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-# Copiar solo el pom primero para aprovechar el caché de Docker
 COPY pom.xml .
 RUN mvn dependency:go-offline
-
-# Copiar el código fuente y compilar
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# ETAPA 2: Ejecución (Runtime)
+# Etapa 2: Runtime
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-
-# Seguridad: Crear usuario no-root (Requisito IE1)
-RUN groupadd -r devops && useradd -r -g devops devops
-USER devops
-
-# Copiar solo el archivo JAR resultante de la etapa anterior
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
 COPY --from=build /app/target/*.jar app.jar
-
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
