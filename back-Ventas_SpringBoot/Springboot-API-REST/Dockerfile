@@ -1,5 +1,5 @@
 # ETAPA 1: Construcción (Build)
-FROM maven:3.8.5-openjdk-17-slim AS build
+FROM maven:3.8.5-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 # Copiar solo el pom primero para aprovechar el caché de Docker
 COPY pom.xml .
@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # ETAPA 2: Ejecución (Runtime)
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Seguridad: Crear usuario no-root (Requisito IE1)
