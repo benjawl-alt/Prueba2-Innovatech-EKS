@@ -2,7 +2,7 @@ name: Deploy Innovatech AWS
 
 on:
   push:
-    branches: [ "deploy" ] # Se activa solo al subir cambios a esta rama
+    branches: [ "deploy" ] # Se activa al subir cambios a la rama deploy
 
 jobs:
   deploy:
@@ -17,14 +17,22 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # AQUÍ PASAMOS EL SECRET DESDE GITHUB AL SCRIPT DE SSH
-          envs: VITE_API_URL
+          # Definimos todas las variables que GitHub le pasará a la instancia EC2
+          envs: VITE_API_URL,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
           script: |
+            # 1. Crear carpeta si no existe y entrar
             mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
-            
-            # Exportamos la variable para que Docker la vea
+
+            # 2. Configurar las credenciales de AWS CLI (Requerimiento del profesor)
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+            export AWS_DEFAULT_REGION=us-east-1
+
+            # 3. Configurar la variable del API Gateway / Backend para el Front
             export VITE_API_URL=${{ secrets.VITE_API_URL }}
-            
-            # El comando sudo -E es la clave: el "-E" mantiene las variables de entorno
+
+            # 4. Levantar los contenedores
+            # Usamos sudo -E para que Docker reconozca las variables exportadas arriba
             sudo -E docker-compose up -d --build
