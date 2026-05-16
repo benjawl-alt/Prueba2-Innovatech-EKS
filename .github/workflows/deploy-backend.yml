@@ -3,10 +3,10 @@ name: Deploy Backend to EC2 Privada
 on:
   push:
     branches: [ "deploy" ]
-    paths:
-      - 'back-Ventas_SpringBoot/**'
-      - 'back-Despachos_SpringBoot/**'
-      - 'docker-compose.back.yml'
+  paths:
+    - 'back-Ventas_SpringBoot/**'
+    - 'back-Despachos_SpringBoot/**'
+    - 'docker-compose.back.yml'
   workflow_dispatch:
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # PASO 1: Forzar limpieza e instalación limpia de Buildx (x86_64) en un bloque aislado
+      # PASO 1: Forzar limpieza e instalación limpia de Buildx (x86_64)
       - name: Purge and Install Buildx Globally
         uses: appleboy/ssh-action@master
         with:
@@ -27,11 +27,9 @@ jobs:
           proxy_username: ec2-user
           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
           script: |
-            # Eliminar rastros corruptos anteriores
             sudo rm -rf /usr/libexec/docker/cli-plugins/docker-buildx
             sudo rm -rf /home/ec2-user/.docker/cli-plugins/docker-buildx
             
-            # Instalar la versión x86_64 limpia en el path del sistema
             sudo mkdir -p /usr/libexec/docker/cli-plugins
             sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
             sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
@@ -66,6 +64,7 @@ jobs:
             sudo mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
             
+            sudo git config --global --add safe.directory /home/ec2-user/app
             if [ ! -d ".git" ]; then
               sudo git init
               sudo git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git

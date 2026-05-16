@@ -1,10 +1,10 @@
-name: Deploy Data to EC2 Privada (MongoDB)
+name: Deploy Data to EC2 Privada (MySQL)
 
 on:
   push:
     branches: [ "deploy" ]
-    paths:
-      - 'docker-compose.data.yml'
+  paths:
+    - 'docker-compose.data.yml'
   workflow_dispatch:
 
 jobs:
@@ -32,8 +32,8 @@ jobs:
             sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
             sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
-      # PASO 2: Validar entorno básico
-      - name: Verify Docker Environment
+      # PASO 2: Validar entorno e Instalar Docker Compose Manualmente
+      - name: Verify Docker and Install Compose
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_DATA_HOST }} 
@@ -46,9 +46,14 @@ jobs:
             sudo dnf install git docker -y
             sudo systemctl start docker
             sudo systemctl enable docker
+            
+            # Inyección manual de Docker Compose v2 para evitar errores de comandos flags
+            sudo mkdir -p /usr/libexec/docker/cli-plugins
+            sudo curl -SL https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
+            sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
-      # PASO 3: Despliegue de la Base de Datos
-      - name: Deploy MongoDB Database
+      # PASO 3: Despliegue de la Base de Datos MySQL
+      - name: Deploy MySQL Database
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_DATA_HOST }} 
@@ -61,6 +66,7 @@ jobs:
             sudo mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
             
+            sudo git config --global --add safe.directory /home/ec2-user/app
             if [ ! -d ".git" ]; then
               sudo git init
               sudo git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git

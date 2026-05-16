@@ -24,8 +24,7 @@ export const FormDespacho = ({ venta, onClose }) => {
     console.log("Datos del formulario:", jsonData);
 
     try {
-      await axios.put(
-        `http://192.168.30/api/v1/ventas/${venta.idVenta}`,
+      await axios.put(`${import.meta.env.VITE_API_URL_VENTAS}/api/v1/ventas/${venta.idVenta}`,
         jsonDataSales,
         {
           headers:{
@@ -34,7 +33,7 @@ export const FormDespacho = ({ venta, onClose }) => {
       }
         }
       );
-      await axios.post("http://192.168.320/api/v1/despachos", jsonData, {
+      await axios.post(`${import.meta.env.VITE_API_URL_DESPACHOS}/api/v1/despachos`, jsonData, {
         headers:{
           'Content-Type': 'application/json',
           'Accept': 'application/json'

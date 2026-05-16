@@ -3,9 +3,9 @@ name: Deploy Frontend to EC2 Pública
 on:
   push:
     branches: [ "deploy" ]
-    paths:
-      - 'front_despacho/**'
-      - 'docker-compose.front.yml'
+  paths:
+    - 'front_despacho/**'
+    - 'docker-compose.front.yml'
 
 jobs:
   deploy:
@@ -17,21 +17,26 @@ jobs:
       - name: Deploy Frontend via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }} # Tu IP del Frontend actual
+          host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # 1. PASO CLAVE: Le decimos a GitHub que pase la variable VITE_API_URL al entorno SSH
-          envs: VITE_API_URL
           script: |
             mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
-            git fetch origin deploy
-            git reset --hard origin/deploy
             
-            # 2. PASO CLAVE: Exportamos la variable que viene desde los Secrets de GitHub
-            export VITE_API_URL=${{ secrets.VITE_API_URL }}
+            # Sincronización limpia con Git
+            sudo git config --global --add safe.directory /home/ec2-user/app
+            sudo git fetch origin deploy
+            sudo git reset --hard origin/deploy
             
-            sudo docker-buildx install
+            # CREACIÓN DEL .ENV USANDO TU SECRETO CORRECTO
+            cat <<EOF > front_despacho/.env
+            VITE_API_URL_VENTAS=http://${{ secrets.EC2_FRONTEND_PUBLIC_IP }}/api/ventas
+            VITE_API_URL_DESPACHOS=http://${{ secrets.EC2_FRONTEND_PUBLIC_IP }}/api/despachos
+            EOF
             
-            # 3. PASO CLAVE: El flag "-E" le hereda la IP al docker-compose
-            sudo -E docker-compose -f docker-compose.front.yml up -d --build
+            # Asegurar soporte de construcción
+            sudo docker-buildx install 2>/dev/null || true
+            
+            # Levantar el contenedor
+            sudo docker compose -f docker-compose.front.yml up -d --build
