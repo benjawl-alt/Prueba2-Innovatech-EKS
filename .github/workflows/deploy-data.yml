@@ -1,0 +1,35 @@
+name: Deploy Data to EC2 Privada (MongoDB)
+
+on:
+  push:
+    branches: [ "deploy" ]
+    paths:
+      - 'docker-compose.data.yml' # Solo se activa si cambia la estructura de datos
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy MongoDB via Bastion (Frontend)
+        uses: appleboy/ssh-action@master
+        with:
+          # 1. El destino final es la nueva máquina usando su IP PRIVADA
+          host: ${{ secrets.EC2_DATA_HOST }} 
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+          # 2. El puente sigue siendo tu Frontend público
+          proxy_host: ${{ secrets.EC2_HOST }}
+          proxy_username: ec2-user
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+          script: |
+            mkdir -p /home/ec2-user/app
+            cd /home/ec2-user/app
+            git fetch origin deploy
+            git reset --hard origin/deploy
+            sudo docker-buildx install
+            sudo docker-compose -f docker-compose.data.yml up -d --build

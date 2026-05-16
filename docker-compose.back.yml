@@ -1,35 +1,22 @@
 version: '3.8'
 
 services:
-  database:
-    image: mongo:latest
-    container_name: app-database-1
-    ports:
-      - "27017:27017"
-    volumes:
-      - db_data:/data/db
-
   back-ventas:
     build: ./back-Ventas_SpringBoot/Springboot-API-REST
     ports:
       - "8081:8080"
     environment:
-      - DB_ENDPOINT=database
+      # Conectamos directo a la EC2 DATA usando su IP Privada interna
+      - DB_ENDPOINT=10.0.3.45
       - DB_PORT=27017
       - DB_NAME=innovatech_db
-    depends_on:
-      - database
 
   back-despacho:
     build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
     ports:
       - "8082:8080"
     environment:
-      - DB_ENDPOINT=database
+      # Conectamos directo a la EC2 DATA usando su IP Privada interna
+      - DB_ENDPOINT=10.0.3.45
       - DB_PORT=27017
       - DB_NAME=innovatech_db
-    depends_on:
-      - database
-
-volumes:
-  db_data:
