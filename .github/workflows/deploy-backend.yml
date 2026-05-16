@@ -7,7 +7,7 @@ on:
       - 'back-Ventas_SpringBoot/**'
       - 'back-Despachos_SpringBoot/**'
       - 'docker-compose.back.yml'
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -16,38 +16,49 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Deploy Backend via Bastion (Frontend)
+      # PASO 1: Garantizar de forma aislada que Buildx esté instalado globalmente
+      - name: Install Buildx Plugin Globally
         uses: appleboy/ssh-action@master
         with:
-          # 1. Destino final (IP Privada de tu máquina Backend)
           host: ${{ secrets.EC2_BACK_HOST }} 
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-          # 2. Configuración del Puente Bastión (Frontend Público)
-          # Eliminamos ssh_key_transfer para limpiar el Warning
           proxy_host: ${{ secrets.EC2_HOST }}        
           proxy_username: ec2-user
           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
-          
-          # 3. Registro de variables para pasarlas al script
-          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
-          
           script: |
-            # 1. Asegurar la existencia de la carpeta de plugins globales de Docker
             sudo mkdir -p /usr/libexec/docker/cli-plugins
-            
-            # 2. Descargar Buildx directo a la ruta global del sistema usando sudo explícito
             sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-buildx
             sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
-            
-            # 3. Validar las herramientas bases indispensables
+
+      # PASO 2: Asegurar herramientas base indispensables
+      - name: Install Environment Dependencies
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_BACK_HOST }} 
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          proxy_host: ${{ secrets.EC2_HOST }}        
+          proxy_username: ec2-user
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
+          script: |
             sudo dnf install git docker -y
             sudo systemctl start docker
             sudo systemctl enable docker
             sudo usermod -aG docker ec2-user
-            
-            # 4. Configurar el espacio de trabajo de la aplicación
+
+      # PASO 3: Sincronizar repositorio y desplegar microservicios
+      - name: Deploy Backend Services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_BACK_HOST }} 
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          proxy_host: ${{ secrets.EC2_HOST }}        
+          proxy_username: ec2-user
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
+          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
+          script: |
             sudo mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
             
@@ -56,15 +67,12 @@ jobs:
               sudo git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git
             fi
             
-            # Forzar la descarga limpia del monorepo
             sudo git fetch origin deploy
             sudo git reset --hard origin/deploy
             
-            # Inyectar variables requeridas de AWS Academy
             export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
             export AWS_DEFAULT_REGION=us-east-1
             
-            # Desplegar los microservicios de Spring Boot
             sudo -E docker compose -f docker-compose.back.yml up -d --build
