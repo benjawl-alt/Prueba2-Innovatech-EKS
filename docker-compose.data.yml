@@ -12,4 +12,4 @@ services:
 volumes:
   db_data:
 
-  # Forzar reinicio de red Mongo
+  
