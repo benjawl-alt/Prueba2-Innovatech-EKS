@@ -22,6 +22,7 @@ jobs:
           host: ${{ secrets.EC2_BACK_HOST }} 
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_key_transfer: true
           
           # 2. CONFIGURACIÓN DEL PUENTE (PROXY/BASTIÓN)
           proxy_host: ${{ secrets.EC2_HOST }}        # <-- IP Pública de tu Frontend
