@@ -1,15 +1,17 @@
 version: '3.8'
 
 services:
-  database:
-    image: mongo:latest
-    container_name: app-database-1
+  db-data:
+    image: mysql:8.0
+    container_name: app-db-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: grupo_cordillera_db  # <-- Nombre real aquí
     ports:
-      - "27017:27017"
+      - "3306:3306"
     volumes:
-      - db_data:/data/db
+      - mysql_data:/var/lib/mysql
 
 volumes:
-  db_data:
-
-  #ldlll#
+  mysql_data:
