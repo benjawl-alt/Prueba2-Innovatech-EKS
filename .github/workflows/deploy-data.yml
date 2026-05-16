@@ -16,20 +16,37 @@ jobs:
       - name: Deploy MongoDB via Bastion (Frontend)
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_DATA_HOST }} # <-- IP Privada de la Data (10.0.3.45)
+          # 1. Destino final (IP Privada de tu máquina de Datos)
+          host: ${{ secrets.EC2_DATA_HOST }} 
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_key_transfer: true
           
-          # EL PUENTE (Mismo que el anterior):
-          proxy_host: ${{ secrets.EC2_HOST }} # <-- IP Pública del Frontend
+          # 2. Configuración del Puente Bastión (Frontend Público)
+          proxy_host: ${{ secrets.EC2_HOST }}        
           proxy_username: ec2-user
-          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
           
           script: |
+            # Instalar herramientas básicas en la EC2 nueva de datos
+            sudo dnf update -y
+            sudo dnf install git docker -y
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker ec2-user
+            
+            # Preparar el directorio de trabajo
             mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
+            
+            # Inicializar el repositorio Git local dentro de la EC2 si no existe
+            if [ ! -d ".git" ]; then
+              git init
+              git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git
+            fi
+            
+            # Descargar la última estructura del Monorepo
             git fetch origin deploy
             git reset --hard origin/deploy
-            sudo docker-buildx install
-            sudo docker-compose -f docker-compose.data.yml up -d --build
+            
+            # Levantar MongoDB usando el comando nativo moderno de Docker Compose
+            sudo docker compose -f docker-compose.data.yml up -d --build

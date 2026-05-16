@@ -18,33 +18,47 @@ jobs:
       - name: Deploy Backend via Bastion (Frontend)
         uses: appleboy/ssh-action@master
         with:
-          # 1. El destino final sigue siendo el Backend usando su IP PRIVADA
+          # 1. Destino final (IP Privada de tu máquina Backend)
           host: ${{ secrets.EC2_BACK_HOST }} 
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_key_transfer: true
           
-          # 2. CONFIGURACIÓN DEL PUENTE (PROXY/BASTIÓN)
-          proxy_host: ${{ secrets.EC2_HOST }}        # <-- IP Pública de tu Frontend
+          # 2. Configuración del Puente Bastión (Frontend Público)
+          # Eliminamos ssh_key_transfer para limpiar el Warning
+          proxy_host: ${{ secrets.EC2_HOST }}        
           proxy_username: ec2-user
-          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   # <-- Usa la misma llave .pem
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
           
-          # 3. REGISTRO DE VARIABLES
+          # 3. Registro de variables para pasarlas al script
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
           
           script: |
+            # Instalar herramientas básicas en la EC2 nueva
+            sudo dnf update -y
+            sudo dnf install git docker -y
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker ec2-user
+            
+            # Preparar el directorio de trabajo
             mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
             
+            # Inicializar el repositorio Git local dentro de la EC2 si no existe
+            if [ ! -d ".git" ]; then
+              git init
+              git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git
+            fi
+            
+            # Descargar los cambios actuales del Monorepo
             git fetch origin deploy
             git reset --hard origin/deploy
             
+            # Exportar credenciales temporales de AWS Academy
             export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
             export AWS_DEFAULT_REGION=us-east-1
             
-            sudo docker-buildx install
-            
-            # Levantamos usando el archivo exclusivo del backend
-            sudo -E docker-compose -f docker-compose.back.yml up -d --build
+            # Levantar contenedores usando Docker nativo (sin guion en compose)
+            sudo -E docker compose -f docker-compose.back.yml up -d --build
