@@ -8,3 +8,6 @@ services:
     environment:
       
       - VITE_API_URL=${VITE_API_URL}
+
+
+      # linea para q funcione #
