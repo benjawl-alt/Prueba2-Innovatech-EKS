@@ -1,13 +1,14 @@
 version: '3.8'
 
 services:
-  front-despacho:
-    build: ./front_despacho
+  app-frontend:
+    build:
+      context: ./front_despacho
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL_VENTAS=http://3.226.238.81
+        - VITE_API_URL_DESPACHOS=http://3.226.238.81
+    container_name: app-front-ventas
     ports:
       - "80:80"
-    environment:
-      
-      - VITE_API_URL=${VITE_API_URL}
-
-
-      # linea para q funcione #
+    restart: always
