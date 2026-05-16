@@ -20,3 +20,6 @@ services:
       - DB_ENDPOINT=10.0.3.45
       - DB_PORT=27017
       - DB_NAME=innovatech_db
+
+
+      # Forzar reinicio de red AWS
