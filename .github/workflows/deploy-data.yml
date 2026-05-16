@@ -14,8 +14,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # PASO 1: Instalar Buildx en la arquitectura correcta de AWS (ARM64)
-      - name: Install Buildx Plugin Globally
+      # PASO 1: Forzar limpieza e instalación limpia de Buildx (x86_64)
+      - name: Purge and Install Buildx Globally
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_DATA_HOST }} 
@@ -25,12 +25,15 @@ jobs:
           proxy_username: ec2-user
           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
           script: |
+            sudo rm -rf /usr/libexec/docker/cli-plugins/docker-buildx
+            sudo rm -rf /home/ec2-user/.docker/cli-plugins/docker-buildx
+            
             sudo mkdir -p /usr/libexec/docker/cli-plugins
-            sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-arm64 -o /usr/libexec/docker/cli-plugins/docker-buildx
+            sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
             sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
-      # PASO 2: Asegurar herramientas base indispensables
-      - name: Install Environment Dependencies
+      # PASO 2: Validar entorno básico
+      - name: Verify Docker Environment
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_DATA_HOST }} 
@@ -43,9 +46,8 @@ jobs:
             sudo dnf install git docker -y
             sudo systemctl start docker
             sudo systemctl enable docker
-            sudo usermod -aG docker ec2-user
 
-      # PASO 3: Sincronizar repositorio y desplegar base de datos
+      # PASO 3: Despliegue de la Base de Datos
       - name: Deploy MongoDB Database
         uses: appleboy/ssh-action@master
         with:
