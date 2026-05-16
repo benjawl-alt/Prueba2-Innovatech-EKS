@@ -1,7 +1,9 @@
+version: '3.8'
+
 services:
   database:
     image: mongo:latest
-    container_name: app-database-1 # Le damos un nombre fijo para que el backend lo encuentre
+    container_name: app-database-1
     ports:
       - "27017:27017"
     volumes:
@@ -12,7 +14,6 @@ services:
     ports:
       - "8081:8080"
     environment:
-      # AQUÍ está la solución: Le pasamos los valores que el log pedía
       - DB_ENDPOINT=database
       - DB_PORT=27017
       - DB_NAME=innovatech_db
@@ -29,14 +30,6 @@ services:
       - DB_NAME=innovatech_db
     depends_on:
       - database
-
-  front-despacho:
-    build: ./front_despacho
-    ports:
-      - "80:80"
-    depends_on:
-      - back-ventas
-      - back-despacho
 
 volumes:
   db_data:
