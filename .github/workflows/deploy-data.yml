@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "deploy" ]
     paths:
-      - 'docker-compose.data.yml' # Solo se activa si cambia la estructura de datos
+      - 'docker-compose.data.yml'
 
 jobs:
   deploy:
@@ -16,13 +16,12 @@ jobs:
       - name: Deploy MongoDB via Bastion (Frontend)
         uses: appleboy/ssh-action@master
         with:
-          # 1. El destino final es la nueva máquina usando su IP PRIVADA
-          host: ${{ secrets.EC2_DATA_HOST }} 
+          host: ${{ secrets.EC2_DATA_HOST }} # <-- IP Privada de la Data (10.0.3.45)
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           
-          # 2. El puente sigue siendo tu Frontend público
-          proxy_host: ${{ secrets.EC2_HOST }}
+          # EL PUENTE (Mismo que el anterior):
+          proxy_host: ${{ secrets.EC2_HOST }} # <-- IP Pública del Frontend
           proxy_username: ec2-user
           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
           

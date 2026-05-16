@@ -15,23 +15,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Deploy Backend via SSH
+      - name: Deploy Backend via Bastion (Frontend)
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_BACK_HOST }} # <-- Tu nueva IP de la máquina de desarrollo/backend
+          # 1. El destino final sigue siendo el Backend usando su IP PRIVADA
+          host: ${{ secrets.EC2_BACK_HOST }} 
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # 1. PASO CLAVE: Registramos todas las variables de AWS que tienes en tus secretos
+          
+          # 2. CONFIGURACIÓN DEL PUENTE (PROXY/BASTIÓN)
+          proxy_host: ${{ secrets.EC2_HOST }}        # <-- IP Pública de tu Frontend
+          proxy_username: ec2-user
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   # <-- Usa la misma llave .pem
+          
+          # 3. REGISTRO DE VARIABLES
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
+          
           script: |
             mkdir -p /home/ec2-user/app
             cd /home/ec2-user/app
             
-            # 2. PASO CLAVE: Obligamos a la máquina a descargar la última estructura del Monorepo
             git fetch origin deploy
             git reset --hard origin/deploy
             
-            # 3. PASO CLAVE: Exportamos los tokens temporales de AWS Academy (Requerimiento del profesor)
             export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
@@ -39,5 +45,5 @@ jobs:
             
             sudo docker-buildx install
             
-            # 4. PASO CLAVE: Levantamos usando el archivo exclusivo del backend heredando las credenciales (-E)
+            # Levantamos usando el archivo exclusivo del backend
             sudo -E docker-compose -f docker-compose.back.yml up -d --build
