@@ -52,9 +52,14 @@ Si se requiere levantar o depurar la suite de servicios manualmente en las insta
 sudo docker compose -f docker-compose.data.yml up -d
 
 Para reconstruir y levantar la lógica de negocio sin caché (Instancia BACK):
-
-
+```bash
 
 sudo docker compose -f docker-compose.back.yml down
 sudo docker builder prune -a -f
 sudo docker compose -f docker-compose.back.yml up -d --build
+```
+# Guardar cambios en github
+
+git add .
+git commit -m "fix: ajuste visual para demostración en vivo"
+git push origin deploy
