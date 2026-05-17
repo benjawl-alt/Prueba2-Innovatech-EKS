@@ -5,9 +5,8 @@ services:
     build: ./back-Ventas_SpringBoot/Springboot-API-REST
     container_name: app-back-ventas-1
     ports:
-      - "8081:8080"
+      - "8081:8081" # CORREGIDO: Mapeo directo 8081 a 8081
     environment:
-      # Conexión JDBC limpia usando la nueva IP de DATA y el nombre real de tu BD
       - SPRING_DATASOURCE_URL=jdbc:mysql://10.0.3.45:3306/grupo_cordillera_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
@@ -17,9 +16,8 @@ services:
     build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
     container_name: app-back-despacho-1
     ports:
-      - "8082:8080"
+      - "8082:8082" # CORREGIDO: Mapeo directo 8082 a 8082
     environment:
-      # Conexión JDBC limpia usando la nueva IP de DATA y el nombre real de tu BD
       - SPRING_DATASOURCE_URL=jdbc:mysql://10.0.3.45:3306/grupo_cordillera_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
