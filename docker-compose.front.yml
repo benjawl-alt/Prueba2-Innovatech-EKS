@@ -6,8 +6,8 @@ services:
       context: ./front_despacho
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL_VENTAS=http://100.25.248.207
-        - VITE_API_URL_DESPACHOS=http://100.25.248.207
+        - VITE_API_URL_VENTAS=${VITE_API_URL_VENTAS}
+        - VITE_API_URL_DESPACHOS=${VITE_API_URL_DESPACHOS}
     container_name: app-front-ventas
     ports:
       - "80:80"
