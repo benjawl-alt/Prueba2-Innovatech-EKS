@@ -50,3 +50,11 @@ Si se requiere levantar o depurar la suite de servicios manualmente en las insta
 **Para levantar la capa de datos (Instancia DATA):**
 ```bash
 sudo docker compose -f docker-compose.data.yml up -d
+
+Para reconstruir y levantar la lógica de negocio sin caché (Instancia BACK):
+
+
+
+sudo docker compose -f docker-compose.back.yml down
+sudo docker builder prune -a -f
+sudo docker compose -f docker-compose.back.yml up -d --build
