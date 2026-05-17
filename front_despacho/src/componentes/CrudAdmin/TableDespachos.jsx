@@ -8,8 +8,7 @@ export const TableDespachos = () => {
 
   const despacho = async () => {
     // CORRECCIÓN: Apuntar a la IP Pública de AWS usando el Proxy Inverso de Nginx
-    await axios
-      .get("http://3.226.238.81/api/v1/despachos", {
+    await axios.get(`${import.meta.env.VITE_API_URL_DESPACHOS}/api/v1/despachos`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'

@@ -31,8 +31,8 @@ jobs:
             
             # CREACIÓN DEL .ENV USANDO TU SECRETO CORRECTO
             cat <<EOF > front_despacho/.env
-            VITE_API_URL_VENTAS=http://${{ secrets.EC2_FRONTEND_PUBLIC_IP }}/api/v1/ventas
-            VITE_API_URL_DESPACHOS=http://${{ secrets.EC2_FRONTEND_PUBLIC_IP }}/api/v1/despachos
+            VITE_API_URL_VENTAS=${{ secrets.VITE_API_URL }}
+            VITE_API_URL_DESPACHOS=${{ secrets.VITE_API_URL }}
             EOF
             
             # Asegurar soporte de construcción

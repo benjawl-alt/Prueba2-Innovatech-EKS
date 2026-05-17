@@ -16,8 +16,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
 
     try {
       // CORRECCIÓN: Cambiar la IP local rota por la IP Pública de AWS con Nginx
-      await axios.put(
-        `http://3.226.238.81/api/v1/despachos/${despacho.idDespacho}`,
+      await axios.put(`${import.meta.env.VITE_API_URL_DESPACHOS}/api/v1/despachos/${despacho.idDespacho}`,
         jsonData,
         {
           headers: {

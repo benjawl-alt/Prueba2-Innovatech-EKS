@@ -8,7 +8,7 @@ export const TableCompras = () => {
 
   const compras = async () => {
     // CORRECCIÓN: Dejar solo la variable de entorno porque ya incluye "/api/v1/ventas"
-    await axios.get(`${import.meta.env.VITE_API_URL_VENTAS}`, {
+    await axios.get(`${import.meta.env.VITE_API_URL_VENTAS}/api/v1/ventas`, {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
