@@ -3,9 +3,6 @@ name: Deploy Frontend to EC2 Pública
 on:
   push:
     branches: [ "deploy" ]
-  paths:
-    - 'front_despacho/**'
-    - 'docker-compose.front.yml'
 
 jobs:
   deploy:
