@@ -63,3 +63,18 @@ sudo docker compose -f docker-compose.back.yml up -d --build
 git add .
 git commit -m "fix: ajuste visual para demostración en vivo"
 git push origin deploy
+
+
+## 5. Procedimiento de Recertificación de Infraestructura (Cambio de IPs)
+
+Dado que el entorno de laboratorio utiliza direccionamiento IP dinámico en AWS Academy, ante un reinicio completo de las instancias EC2 se debe ejecutar el siguiente protocolo de actualización en los GitHub Secrets del repositorio:
+
+1. **Actualización de Credenciales de Host (CD):**
+   * Modificar `EC2_HOST` con la nueva IP pública de la instancia de Frontend.
+   * Modificar `EC2_BACK_HOST` con la nueva IP pública de la instancia de Backend.
+
+2. **Actualización del Enlace del Cliente (Vite):**
+   * Modificar `VITE_API_URL` utilizando la estructura `http://<NUEVA_IP_BACKEND>:8081` para actualizar el punto de enlace (endpoint) global del ecosistema Frontend de React hacia los microservicios.
+
+3. **Gatillar Redespliegue:**
+   * Realizar un ajuste menor o empujar un commit a la rama `deploy` para forzar la ejecución del pipeline y actualizar los contenedores con las nuevas variables de entorno en producción.
