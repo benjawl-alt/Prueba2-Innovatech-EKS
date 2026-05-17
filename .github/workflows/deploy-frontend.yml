@@ -29,7 +29,12 @@ jobs:
             sudo git fetch origin deploy
             sudo git reset --hard origin/deploy
             
-            # CREACIÓN DEL .ENV USANDO TU SECRETO CORRECTO
+            # 1. Forzar la creación del .env tanto en la raíz como dentro de la carpeta del front
+            cat <<EOF > .env
+            VITE_API_URL_VENTAS=${{ secrets.VITE_API_URL }}
+            VITE_API_URL_DESPACHOS=${{ secrets.VITE_API_URL }}
+            EOF
+            
             cat <<EOF > front_despacho/.env
             VITE_API_URL_VENTAS=${{ secrets.VITE_API_URL }}
             VITE_API_URL_DESPACHOS=${{ secrets.VITE_API_URL }}
@@ -38,5 +43,8 @@ jobs:
             # Asegurar soporte de construcción
             sudo docker-buildx install 2>/dev/null || true
             
-            # Levantar el contenedor
-            sudo docker compose -f docker-compose.front.yml up -d --build
+            # 2. DETENER Y ELIMINAR EL CONTENEDOR VIEJO (Para romper la caché de red)
+            sudo docker compose -f docker-compose.front.yml down
+            
+            # 3. LEVANTAR PASANDO LA BANDERA DE RECONSTRUCCIÓN ABSOLUTA
+            sudo docker compose -f docker-compose.front.yml up -d --build --force-recreate
