@@ -7,25 +7,27 @@ export const TableCompras = () => {
   const [ventas, setVentas] = useState([]);
 
   const compras = async () => {
-      await axios.get(`${import.meta.env.VITE_API_URL_VENTAS}/api/v1/ventas`, {
-      headers:{
+    // CORRECCIÓN: Dejar solo la variable de entorno porque ya incluye "/api/v1/ventas"
+    await axios.get(`${import.meta.env.VITE_API_URL_VENTAS}`, {
+      headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-  }
+      }
     }).then((response) => {
       console.log(response.data);
       setVentas(response.data);
     });
   };
+
   // Llamada a la función para obtener los datos cuando el componente se monta
   useEffect(() => {
     compras();
   }, []);
 
-  //state que controla el modal
+  // state que controla el modal
   const [openModal, setOpenModal] = useState(false);
 
-  //state que abre el modal junto con la data del id seleccionado
+  // state que abre el modal junto con la data del id seleccionado
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
   const handleAbrirModal = (venta) => {
     setVentaSeleccionada(venta);
@@ -41,7 +43,7 @@ export const TableCompras = () => {
               <thead>
                 <tr className="py-10">
                   <th className="pr-10">Orden de compra</th>
-                  <th className="pr-10">direccion</th>
+                  <th className="pr-10">dirección</th>
                   <th className="pr-10">fecha de compra</th>
                   <th className="pr-10">valor total</th>
                   <th className="pr-10"></th>
@@ -89,8 +91,9 @@ export const TableCompras = () => {
           <FormDespacho
             venta={ventaSeleccionada}
             onClose={() => {
-              //onclose es un prop que pasa funciones al modal con el form abierto, por ende al cerrarse, se ejecutan esas 2 funciones
-              setOpenModal(false), compras();
+              // Al cerrarse el modal, se cierra la ventana y se refresca la grilla automáticamente
+              setOpenModal(false);
+              compras();
             }}
           />
         )}

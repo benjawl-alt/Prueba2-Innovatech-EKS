@@ -24,21 +24,25 @@ export const FormDespacho = ({ venta, onClose }) => {
     console.log("Datos del formulario:", jsonData);
 
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL_VENTAS}/api/v1/ventas/${venta.idVenta}`,
+      // Usamos la variable de entorno que ya trae "/api/v1/ventas" y le concatenamos el ID
+      await axios.put(`${import.meta.env.VITE_API_URL_VENTAS}/${venta.idVenta}`,
         jsonDataSales,
         {
-          headers:{
+          headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-      }
+          }
         }
       );
-      await axios.post(`${import.meta.env.VITE_API_URL_DESPACHOS}/api/v1/despachos`, jsonData, {
-        headers:{
+
+      // Usamos la variable de entorno de despachos que ya viene lista con "/api/v1/despachos"
+      await axios.post(`${import.meta.env.VITE_API_URL_DESPACHOS}`, jsonData, {
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-    }
+        }
       });
+
       Swal.fire({
         title: "Despacho registrado 🛻!",
         text: "El despacho ha sido generado con éxito en la base de datos",
@@ -50,6 +54,7 @@ export const FormDespacho = ({ venta, onClose }) => {
     }
     onClose();
   };
+
   return (
     <>
       <form
