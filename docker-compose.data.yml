@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: grupo_cordillera_db  # <-- Nombre real aquí
+      MYSQL_DATABASE: grupo_cordillera_db  
     ports:
       - "3306:3306"
     volumes:
