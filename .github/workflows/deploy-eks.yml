@@ -1,4 +1,4 @@
-name: Deploy to EKS
+name: Deploy Application to EKS
 
 
 on:
@@ -7,7 +7,7 @@ on:
 
     branches:
 
-      - deploy
+      - main
 
 
   workflow_dispatch:
@@ -23,10 +23,12 @@ jobs:
     runs-on: ubuntu-latest
 
 
+
     steps:
 
 
-    - name: Checkout
+
+    - name: Checkout repository
 
       uses: actions/checkout@v4
 
@@ -38,78 +40,115 @@ jobs:
 
       with:
 
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id:
 
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-
-        aws-region: us-east-1
+          ${{ secrets.AWS_ACCESS_KEY_ID }}
 
 
+        aws-secret-access-key:
 
-    - name: Login to ECR
+          ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+        aws-session-token:
+
+          ${{ secrets.AWS_SESSION_TOKEN }}
+
+
+        aws-region:
+
+          ${{ secrets.AWS_REGION }}
+
+
+
+    - name: Login to Amazon ECR
 
       uses: aws-actions/amazon-ecr-login@v2
 
 
 
-    - name: Build Frontend Image
+    - name: Build Frontend image
 
       run: |
 
+
         docker build \
+
         -t tienda-frontend ./front_despacho
 
 
 
-    - name: Push Frontend Image
+
+    - name: Push Frontend image
 
       run: |
 
+
         docker tag tienda-frontend:latest \
+
         ${{ secrets.ECR_FRONTEND }}:latest
+
 
 
         docker push \
+
         ${{ secrets.ECR_FRONTEND }}:latest
 
 
 
-    - name: Build Backend Image
+
+
+    - name: Build Backend image
 
       run: |
 
+
         docker build \
+
         -t tienda-backend ./back-Ventas_SpringBoot/Springboot-API-REST
 
 
 
-    - name: Push Backend Image
+
+
+    - name: Push Backend image
 
       run: |
 
+
         docker tag tienda-backend:latest \
+
         ${{ secrets.ECR_BACKEND }}:latest
+
 
 
         docker push \
+
         ${{ secrets.ECR_BACKEND }}:latest
 
 
 
-    - name: Connect EKS
+
+    - name: Configure kubectl
 
       run: |
+
 
         aws eks update-kubeconfig \
-        --region us-east-1 \
-        --name devopseks
+
+        --region ${{ secrets.AWS_REGION }} \
+
+        --name ${{ secrets.EKS_CLUSTER_NAME }}
 
 
 
-    - name: Deploy Kubernetes
+
+
+
+    - name: Deploy Kubernetes manifests
 
       run: |
 
-        kubectl apply -f k8s/
+
+        kubectl apply -f k8s/ -n ${{ secrets.EKS_NAMESPACE }}
