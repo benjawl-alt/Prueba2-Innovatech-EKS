@@ -40,25 +40,13 @@ jobs:
 
       with:
 
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 
-        aws-access-key-id:
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-          ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-
-        aws-secret-access-key:
-
-          ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-
-        aws-session-token:
-
-          ${{ secrets.AWS_SESSION_TOKEN }}
-
-
-        aws-region:
-
-          ${{ secrets.AWS_REGION }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
 
 
@@ -70,32 +58,27 @@ jobs:
 
     - name: Build Frontend image
 
-  run: |
+      run: |
 
-    docker build -t tienda-frontend ./front_despacho
-
+        docker build -t tienda-frontend ./front_despacho
 
 
 
     - name: Push Frontend image
 
-  run: |
+      run: |
 
-    docker tag tienda-frontend:latest ${{ secrets.ECR_FRONTEND }}:latest
+        docker tag tienda-frontend:latest ${{ secrets.ECR_FRONTEND }}:latest
 
-    docker push ${{ secrets.ECR_FRONTEND }}:latest
-
-
+        docker push ${{ secrets.ECR_FRONTEND }}:latest
 
 
 
     - name: Build Backend image
 
-  run: |
+      run: |
 
-    docker build -t tienda-backend ./back-Ventas_SpringBoot/Springboot-API-REST
-
-
+        docker build -t tienda-backend ./back-Ventas_SpringBoot/Springboot-API-REST
 
 
 
@@ -103,15 +86,9 @@ jobs:
 
       run: |
 
-
         docker tag tienda-backend:latest ${{ secrets.ECR_BACKEND }}:latest
 
-
-
-        docker push \
-
-        ${{ secrets.ECR_BACKEND }}:latest
-
+        docker push ${{ secrets.ECR_BACKEND }}:latest
 
 
 
@@ -119,21 +96,14 @@ jobs:
 
       run: |
 
-
         aws eks update-kubeconfig \
-
         --region ${{ secrets.AWS_REGION }} \
-
         --name ${{ secrets.EKS_CLUSTER_NAME }}
-
-
-
 
 
 
     - name: Deploy Kubernetes manifests
 
       run: |
-
 
         kubectl apply -f k8s/ -n ${{ secrets.EKS_NAMESPACE }}
