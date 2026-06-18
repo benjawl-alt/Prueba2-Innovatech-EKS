@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,6 +47,13 @@ jobs:
       - name: Verify EKS Connection
         run: kubectl get nodes
 
+      - name: Debug Files
+        run: |
+          pwd
+          ls -R
+          echo "===== namespace.yaml ====="
+          cat k8s/namespace.yaml
+
       - name: Deploy Kubernetes manifests
         run: |
           kubectl apply -f k8s/namespace.yaml
@@ -55,3 +63,4 @@ jobs:
         run: |
           kubectl get pods -n ${{ secrets.EKS_NAMESPACE }}
           kubectl get svc -n ${{ secrets.EKS_NAMESPACE }}
+          kubectl get deployments -n ${{ secrets.EKS_NAMESPACE }}
