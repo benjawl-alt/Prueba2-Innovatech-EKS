@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+
+  name: backend-ventas
+
+  namespace: tienda
+
+
+
+spec:
+
+  replicas: 1
+
+
+  selector:
+
+    matchLabels:
+
+      app: backend-ventas
+
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: backend-ventas
+
+
+    spec:
+
+
+      containers:
+
+
+      - name: backend-ventas
+
+
+        image: ECR_BACKEND
+
+
+        ports:
+
+
+        - containerPort: 8081
+
+
+
+        env:
+
+
+        - name: SPRING_DATASOURCE_URL
+
+          value: jdbc:mysql://mysql:3306/grupo_cordillera_db?useSSL=false&serverTimezone=UTC
+
+
+
+        - name: SPRING_DATASOURCE_USERNAME
+
+          value: root
+
+
+
+        - name: SPRING_DATASOURCE_PASSWORD
+
+          value: root
+
+
+
+
+
+
+---
+
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+
+metadata:
+
+  name: backend-despacho
+
+  namespace: tienda
+
+
+
+spec:
+
+  replicas: 1
+
+
+
+  selector:
+
+    matchLabels:
+
+      app: backend-despacho
+
+
+
+  template:
+
+
+    metadata:
+
+
+      labels:
+
+
+        app: backend-despacho
+
+
+
+    spec:
+
+
+      containers:
+
+
+
+      - name: backend-despacho
+
+
+        image: ECR_BACKEND
+
+
+
+        ports:
+
+
+
+        - containerPort: 8082
+
+
+
+        env:
+
+
+
+        - name: SPRING_DATASOURCE_URL
+
+
+          value: jdbc:mysql://mysql:3306/grupo_cordillera_db?useSSL=false&serverTimezone=UTC
+
+
+
+        - name: SPRING_DATASOURCE_USERNAME
+
+
+          value: root
+
+
+
+        - name: SPRING_DATASOURCE_PASSWORD
+
+
+          value: root

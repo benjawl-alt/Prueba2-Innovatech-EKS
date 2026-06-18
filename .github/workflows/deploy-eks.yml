@@ -1,0 +1,115 @@
+name: Deploy to EKS
+
+
+on:
+
+  push:
+
+    branches:
+
+      - deploy
+
+
+  workflow_dispatch:
+
+
+
+jobs:
+
+
+  deploy:
+
+
+    runs-on: ubuntu-latest
+
+
+    steps:
+
+
+    - name: Checkout
+
+      uses: actions/checkout@v4
+
+
+
+    - name: Configure AWS credentials
+
+      uses: aws-actions/configure-aws-credentials@v4
+
+      with:
+
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+        aws-region: us-east-1
+
+
+
+    - name: Login to ECR
+
+      uses: aws-actions/amazon-ecr-login@v2
+
+
+
+    - name: Build Frontend Image
+
+      run: |
+
+        docker build \
+        -t tienda-frontend ./front_despacho
+
+
+
+    - name: Push Frontend Image
+
+      run: |
+
+        docker tag tienda-frontend:latest \
+        ${{ secrets.ECR_FRONTEND }}:latest
+
+
+        docker push \
+        ${{ secrets.ECR_FRONTEND }}:latest
+
+
+
+    - name: Build Backend Image
+
+      run: |
+
+        docker build \
+        -t tienda-backend ./back-Ventas_SpringBoot/Springboot-API-REST
+
+
+
+    - name: Push Backend Image
+
+      run: |
+
+        docker tag tienda-backend:latest \
+        ${{ secrets.ECR_BACKEND }}:latest
+
+
+        docker push \
+        ${{ secrets.ECR_BACKEND }}:latest
+
+
+
+    - name: Connect EKS
+
+      run: |
+
+        aws eks update-kubeconfig \
+        --region us-east-1 \
+        --name devopseks
+
+
+
+    - name: Deploy Kubernetes
+
+      run: |
+
+        kubectl apply -f k8s/
