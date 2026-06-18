@@ -70,30 +70,20 @@ jobs:
 
     - name: Build Frontend image
 
-      run: |
+  run: |
 
-
-        docker build \
-
-        -t tienda-frontend ./front_despacho
+    docker build -t tienda-frontend ./front_despacho
 
 
 
 
     - name: Push Frontend image
 
-      run: |
+  run: |
 
+    docker tag tienda-frontend:latest ${{ secrets.ECR_FRONTEND }}:latest
 
-        docker tag tienda-frontend:latest \
-
-        ${{ secrets.ECR_FRONTEND }}:latest
-
-
-
-        docker push \
-
-        ${{ secrets.ECR_FRONTEND }}:latest
+    docker push ${{ secrets.ECR_FRONTEND }}:latest
 
 
 
@@ -101,12 +91,9 @@ jobs:
 
     - name: Build Backend image
 
-      run: |
+  run: |
 
-
-        docker build \
-
-        -t tienda-backend ./back-Ventas_SpringBoot/Springboot-API-REST
+    docker build -t tienda-backend ./back-Ventas_SpringBoot/Springboot-API-REST
 
 
 
@@ -117,9 +104,7 @@ jobs:
       run: |
 
 
-        docker tag tienda-backend:latest \
-
-        ${{ secrets.ECR_BACKEND }}:latest
+        docker tag tienda-backend:latest ${{ secrets.ECR_BACKEND }}:latest
 
 
 
