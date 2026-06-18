@@ -72,7 +72,7 @@ jobs:
           kubectl get svc -n ${{ secrets.EKS_NAMESPACE }}
           kubectl get deployments -n ${{ secrets.EKS_NAMESPACE }}
 
-Las líneas importantes que estaban mal son estas:
+
 
 on:
   push:
