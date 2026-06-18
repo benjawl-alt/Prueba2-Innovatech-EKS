@@ -1,11 +1,6 @@
 name: Deploy Application to EKS
 
-on:
-  push:
-    branches:
-      - main
-
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
 jobs:
   deploy:
