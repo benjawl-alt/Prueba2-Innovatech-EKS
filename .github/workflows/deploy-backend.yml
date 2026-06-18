@@ -1,83 +1,84 @@
-name: Deploy Backend to EC2 Privada
+# name: Deploy Backend to EC2 Privada
 
-on:
-push:
-branches:
-- deploy
-paths:
-- 'back-Ventas_SpringBoot/'
-- 'back-Despachos_SpringBoot/'
-- 'docker-compose.back.yml'
+# on:
+#   push:
+#     branches:
+#     - deploy
+# paths:
+# - 'back-Ventas_SpringBoot/'
+# - 'back-Despachos_SpringBoot/'
+# - 'docker-compose.back.yml'
 
-workflow_dispatch:
+# workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-      # PASO 1: Forzar limpieza e instalación limpia de Buildx (x86_64)
-      - name: Purge and Install Buildx Globally
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_BACK_HOST }} 
-          username: ec2-user
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          proxy_host: ${{ secrets.EC2_HOST }}        
-          proxy_username: ec2-user
-          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
-          script: |
-            sudo rm -rf /usr/libexec/docker/cli-plugins/docker-buildx
-            sudo rm -rf /home/ec2-user/.docker/cli-plugins/docker-buildx
+# steps:
+#   - name: Checkout Code
+#     uses: actions/checkout@v3
+
+#       # PASO 1: Forzar limpieza e instalación limpia de Buildx (x86_64)
+#       - name: Purge and Install Buildx Globally
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_BACK_HOST }} 
+#           username: ec2-user
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           proxy_host: ${{ secrets.EC2_HOST }}        
+#           proxy_username: ec2-user
+#           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
+#           script: |
+#             sudo rm -rf /usr/libexec/docker/cli-plugins/docker-buildx
+#             sudo rm -rf /home/ec2-user/.docker/cli-plugins/docker-buildx
             
-            sudo mkdir -p /usr/libexec/docker/cli-plugins
-            sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
-            sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+#             sudo mkdir -p /usr/libexec/docker/cli-plugins
+#             sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
+#             sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
-      # PASO 2: Validar entorno básico
-      - name: Verify Docker Environment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_BACK_HOST }} 
-          username: ec2-user
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          proxy_host: ${{ secrets.EC2_HOST }}        
-          proxy_username: ec2-user
-          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
-          script: |
-            sudo dnf install git docker -y
-            sudo systemctl start docker
-            sudo systemctl enable docker
+#       # PASO 2: Validar entorno básico
+#       - name: Verify Docker Environment
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_BACK_HOST }} 
+#           username: ec2-user
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           proxy_host: ${{ secrets.EC2_HOST }}        
+#           proxy_username: ec2-user
+#           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
+#           script: |
+#             sudo dnf install git docker -y
+#             sudo systemctl start docker
+#             sudo systemctl enable docker
 
-      # PASO 3: Despliegue con la pista ya limpia
-      - name: Deploy Backend Services
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_BACK_HOST }} 
-          username: ec2-user
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          proxy_host: ${{ secrets.EC2_HOST }}        
-          proxy_username: ec2-user
-          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
-          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
-          script: |
-            sudo mkdir -p /home/ec2-user/app
-            cd /home/ec2-user/app
+#       # PASO 3: Despliegue con la pista ya limpia
+#       - name: Deploy Backend Services
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_BACK_HOST }} 
+#           username: ec2-user
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           proxy_host: ${{ secrets.EC2_HOST }}        
+#           proxy_username: ec2-user
+#           proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}   
+#           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN
+#           script: |
+#             sudo mkdir -p /home/ec2-user/app
+#             cd /home/ec2-user/app
             
-            sudo git config --global --add safe.directory /home/ec2-user/app
-            if [ ! -d ".git" ]; then
-              sudo git init
-              sudo git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git
-            fi
+#             sudo git config --global --add safe.directory /home/ec2-user/app
+#             if [ ! -d ".git" ]; then
+#               sudo git init
+#               sudo git remote add origin https://github.com/benjawl-alt/Prueba2-Innovatech.git
+#             fi
             
-            sudo git fetch origin deploy
-            sudo git reset --hard origin/deploy
+#             sudo git fetch origin deploy
+#             sudo git reset --hard origin/deploy
             
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
-            export AWS_DEFAULT_REGION=us-east-1
+#             export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+#             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+#             export AWS_DEFAULT_REGION=us-east-1
             
-            sudo -E docker compose -f docker-compose.back.yml up -d --build
+#             sudo -E docker compose -f docker-compose.back.yml up -d --build
