@@ -2,9 +2,11 @@ name: Deploy Data to EC2 Privada (MySQL)
 
 on:
   push:
-    branches: [ "deploy" ]
-  paths:
-    - 'docker-compose.data.yml'
+    branches:
+      - deploy
+    paths:
+      - 'docker-compose.data.yml'
+
   workflow_dispatch:
 
 jobs:
