@@ -1,13 +1,15 @@
 name: Deploy Backend to EC2 Privada
 
 on:
-  push:
-    branches: [ "deploy" ]
-  paths:
-    - 'back-Ventas_SpringBoot/**'
-    - 'back-Despachos_SpringBoot/**'
-    - 'docker-compose.back.yml'
-  workflow_dispatch:
+push:
+branches:
+- deploy
+paths:
+- 'back-Ventas_SpringBoot/'
+- 'back-Despachos_SpringBoot/'
+- 'docker-compose.back.yml'
+
+workflow_dispatch:
 
 jobs:
   deploy:
