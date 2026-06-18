@@ -1,17 +1,17 @@
 name: Deploy Application to EKS
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+    - main
 
 workflow_dispatch:
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-```
+
 steps:
   - name: Checkout repository
     uses: actions/checkout@v4
@@ -77,4 +77,3 @@ steps:
       kubectl get pods -n ${{ secrets.EKS_NAMESPACE }}
       kubectl get svc -n ${{ secrets.EKS_NAMESPACE }}
       kubectl get deployments -n ${{ secrets.EKS_NAMESPACE }}
-```
