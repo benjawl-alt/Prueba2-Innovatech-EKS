@@ -1,7 +1,5 @@
 apiVersion: v1
-
 kind: Service
-
 
 metadata:
 
@@ -10,20 +8,14 @@ metadata:
   namespace: tienda
 
 
-
 spec:
 
-
   selector:
-
 
     app: mysql
 
 
-
   ports:
-
-
 
   - port: 3306
 
@@ -31,20 +23,17 @@ spec:
 
 
 
+
 ---
 
 
 apiVersion: v1
-
 kind: Service
-
 
 
 metadata:
 
-
   name: backend-ventas
-
 
   namespace: tienda
 
@@ -53,13 +42,7 @@ metadata:
 spec:
 
 
-
-  type: ClusterIP
-
-
-
   selector:
-
 
 
     app: backend-ventas
@@ -69,9 +52,7 @@ spec:
   ports:
 
 
-
   - port: 8081
-
 
     targetPort: 8081
 
@@ -82,26 +63,18 @@ spec:
 
 
 apiVersion: v1
-
 kind: Service
-
 
 
 metadata:
 
-
   name: backend-despacho
-
 
   namespace: tienda
 
 
 
 spec:
-
-
-  type: ClusterIP
-
 
 
   selector:
@@ -114,12 +87,9 @@ spec:
   ports:
 
 
-
   - port: 8082
 
-
     targetPort: 8082
-
 
 
 
@@ -128,23 +98,18 @@ spec:
 
 
 apiVersion: v1
-
 kind: Service
-
 
 
 metadata:
 
-
   name: frontend
-
 
   namespace: tienda
 
 
 
 spec:
-
 
 
   type: LoadBalancer
@@ -154,7 +119,6 @@ spec:
   selector:
 
 
-
     app: frontend
 
 
@@ -162,8 +126,6 @@ spec:
   ports:
 
 
-
   - port: 80
-
 
     targetPort: 80

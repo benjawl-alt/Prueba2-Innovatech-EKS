@@ -1,5 +1,4 @@
 apiVersion: apps/v1
-
 kind: Deployment
 
 
@@ -53,7 +52,7 @@ spec:
 
 
 
-        image: ECR_FRONTEND
+        image: 317239159781.dkr.ecr.us-east-1.amazonaws.com/tienda-frontend:latest
 
 
 

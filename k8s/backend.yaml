@@ -4,9 +4,7 @@ kind: Deployment
 metadata:
 
   name: backend-ventas
-
   namespace: tienda
-
 
 
 spec:
@@ -39,7 +37,7 @@ spec:
       - name: backend-ventas
 
 
-        image: ECR_BACKEND
+        image: 317239159781.dkr.ecr.us-east-1.amazonaws.com/tienda-backend:latest
 
 
         ports:
@@ -70,26 +68,22 @@ spec:
 
 
 
-
-
-
 ---
 
 
 apiVersion: apps/v1
-
 kind: Deployment
 
 
 metadata:
 
   name: backend-despacho
-
   namespace: tienda
 
 
 
 spec:
+
 
   replicas: 1
 
@@ -97,7 +91,9 @@ spec:
 
   selector:
 
+
     matchLabels:
+
 
       app: backend-despacho
 
@@ -126,7 +122,8 @@ spec:
       - name: backend-despacho
 
 
-        image: ECR_BACKEND
+
+        image: 317239159781.dkr.ecr.us-east-1.amazonaws.com/tienda-backend:latest
 
 
 
